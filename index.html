@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAT Practice Test</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Login/Register Section -->
+        <div id="auth-section" class="container">
+            <h1>SAT Practice Test</h1>
+            <div class="auth-container">
+                <div class="auth-form active" id="login-form">
+                    <h2>Login</h2>
+                    <input type="email" id="login-email" placeholder="Email" required>
+                    <input type="password" id="login-password" placeholder="Password" required>
+                    <button id="login-btn">Login</button>
+                    <p>Don't have an account? <a href="#" id="show-register">Register</a></p>
+                </div>
+                
+                <div class="auth-form" id="register-form">
+                    <h2>Register</h2>
+                    <input type="text" id="register-name" placeholder="Full Name" required>
+                    <input type="email" id="register-email" placeholder="Email" required>
+                    <input type="password" id="register-password" placeholder="Password" required>
+                    <button id="register-btn">Register</button>
+                    <p>Already have an account? <a href="#" id="show-login">Login</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="container hidden">
+            <header>
+                <h1>Welcome to SAT Practice</h1>
+                <button id="logout-btn">Logout</button>
+            </header>
+            
+            <div class="dashboard-content">
+                <div class="features">
+                    <div class="feature-card" id="start-test-btn">
+                        <h3>Start SAT Practice Test</h3>
+                        <p>30 questions with timer</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Section -->
+        <div id="test-section" class="container hidden">
+            <header>
+                <div class="timer">Time Left: <span id="time-display">50:00</span></div>
+                <button id="submit-test-btn">Submit Test</button>
+            </header>
+            
+            <div class="test-container">
+                <div class="question-progress">
+                    <span>Question <span id="current-question">1</span> of 60</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+                
+                <div class="question-container">
+                    <h3 id="question-text">Question will appear here</h3>
+                    <div class="options-container" id="options-container">
+                        <!-- Options will be populated dynamically -->
+                    </div>
+                </div>
+                
+                <div class="navigation">
+                    <button id="prev-btn">Previous</button>
+                    <button id="next-btn">Next</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Draggable Calculator Card -->
+        <div id="calculator-card" class="calculator-card hidden">
+            <div class="calculator-header">
+                <span>Calculator</span>
+                <div class="calculator-controls">
+                    <button id="minimize-calculator" class="control-btn">−</button>
+                    <button id="close-calculator" class="control-btn">×</button>
+                </div>
+            </div>
+            <div class="calculator-body">
+                <div class="display">
+                    <input type="text" id="calc-display" readonly>
+                </div>
+                <div class="buttons">
+                    <button onclick="clearDisplay()">C</button>
+                    <button onclick="appendToDisplay('(')">(</button>
+                    <button onclick="appendToDisplay(')')">)</button>
+                    <button onclick="appendToDisplay('/')">/</button>
+                    
+                    <button onclick="appendToDisplay('7')">7</button>
+                    <button onclick="appendToDisplay('8')">8</button>
+                    <button onclick="appendToDisplay('9')">9</button>
+                    <button onclick="appendToDisplay('*')">×</button>
+                    
+                    <button onclick="appendToDisplay('4')">4</button>
+                    <button onclick="appendToDisplay('5')">5</button>
+                    <button onclick="appendToDisplay('6')">6</button>
+                    <button onclick="appendToDisplay('-')">-</button>
+                    
+                    <button onclick="appendToDisplay('1')">1</button>
+                    <button onclick="appendToDisplay('2')">2</button>
+                    <button onclick="appendToDisplay('3')">3</button>
+                    <button onclick="appendToDisplay('+')">+</button>
+                    
+                    <button onclick="appendToDisplay('0')">0</button>
+                    <button onclick="appendToDisplay('.')">.</button>
+                    <button onclick="calculateResult()">=</button>
+                    <button onclick="deleteLastChar()">⌫</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="container hidden">
+            <h1>Test Results</h1>
+            <div class="results-summary">
+                <div class="score-card">
+                    <h2>Your Score</h2>
+                    <div class="score" id="final-score">0</div>
+                    <p>Correct Answers: <span id="correct-count">0</span>/30</p>
+                </div>
+                
+                <div class="review-section">
+                    <h3>Review Answers</h3>
+                    <div id="answers-review">
+                        <!-- Answers will be populated here -->
+                    </div>
+                </div>
+                
+                <button id="back-to-dashboard">Back to Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

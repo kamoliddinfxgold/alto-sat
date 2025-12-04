@@ -1,0 +1,25 @@
+{
+  "name": "sat-practice-app",
+  "version": "1.0.0",
+  "description": "SAT Practice Test Application with Supabase Integration",
+  "main": "script.js",
+  "scripts": {
+    "seed-db": "node supabase/seed_data.js",
+    "start": "npx serve ."
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.0"
+  },
+  "devDependencies": {
+    "serve": "^14.2.0"
+  },
+  "keywords": [
+    "sat",
+    "practice",
+    "test",
+    "supabase",
+    "education"
+  ],
+  "author": "SAT Practice Team",
+  "license": "MIT"
+}
