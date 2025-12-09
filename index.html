@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAT Practice Test</title>
+    <title>SertPrep - SAT Practice Test</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -11,10 +11,10 @@
     <div id="app">
         <!-- Login/Register Section -->
         <div id="auth-section" class="container">
-            <h1>SAT Practice Test</h1>
+            <h1>SertPrep</h1>
             <div class="auth-container">
                 <div class="auth-form active" id="login-form">
-                    <h2>Login</h2>
+                    <h2>Login to SertPrep</h2>
                     <input type="email" id="login-email" placeholder="Email" required>
                     <input type="password" id="login-password" placeholder="Password" required>
                     <button id="login-btn">Login</button>
@@ -22,7 +22,7 @@
                 </div>
                 
                 <div class="auth-form" id="register-form">
-                    <h2>Register</h2>
+                    <h2>Register for SertPrep</h2>
                     <input type="text" id="register-name" placeholder="Full Name" required>
                     <input type="email" id="register-email" placeholder="Email" required>
                     <input type="password" id="register-password" placeholder="Password" required>
@@ -31,117 +31,136 @@
                 </div>
             </div>
         </div>
-
-        <!-- Dashboard Section -->
-        <div id="dashboard" class="container hidden">
-            <header>
-                <h1>Welcome to SAT Practice</h1>
-                <button id="logout-btn">Logout</button>
-            </header>
-            
-            <div class="dashboard-content">
-                <div class="features">
-                    <div class="feature-card" id="start-test-btn">
-                        <h3>Start SAT Practice Test</h3>
-                        <p>30 questions with timer</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Test Section -->
-        <div id="test-section" class="container hidden">
-            <header>
-                <div class="timer">Time Left: <span id="time-display">50:00</span></div>
-                <button id="submit-test-btn">Submit Test</button>
-            </header>
-            
-            <div class="test-container">
-                <div class="question-progress">
-                    <span>Question <span id="current-question">1</span> of 60</span>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progress-fill"></div>
-                    </div>
-                </div>
-                
-                <div class="question-container">
-                    <h3 id="question-text">Question will appear here</h3>
-                    <div class="options-container" id="options-container">
-                        <!-- Options will be populated dynamically -->
-                    </div>
-                </div>
-                
-                <div class="navigation">
-                    <button id="prev-btn">Previous</button>
-                    <button id="next-btn">Next</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Draggable Calculator Card -->
-        <div id="calculator-card" class="calculator-card hidden">
-            <div class="calculator-header">
-                <span>Calculator</span>
-                <div class="calculator-controls">
-                    <button id="minimize-calculator" class="control-btn">−</button>
-                    <button id="close-calculator" class="control-btn">×</button>
-                </div>
-            </div>
-            <div class="calculator-body">
-                <div class="display">
-                    <input type="text" id="calc-display" readonly>
-                </div>
-                <div class="buttons">
-                    <button onclick="clearDisplay()">C</button>
-                    <button onclick="appendToDisplay('(')">(</button>
-                    <button onclick="appendToDisplay(')')">)</button>
-                    <button onclick="appendToDisplay('/')">/</button>
-                    
-                    <button onclick="appendToDisplay('7')">7</button>
-                    <button onclick="appendToDisplay('8')">8</button>
-                    <button onclick="appendToDisplay('9')">9</button>
-                    <button onclick="appendToDisplay('*')">×</button>
-                    
-                    <button onclick="appendToDisplay('4')">4</button>
-                    <button onclick="appendToDisplay('5')">5</button>
-                    <button onclick="appendToDisplay('6')">6</button>
-                    <button onclick="appendToDisplay('-')">-</button>
-                    
-                    <button onclick="appendToDisplay('1')">1</button>
-                    <button onclick="appendToDisplay('2')">2</button>
-                    <button onclick="appendToDisplay('3')">3</button>
-                    <button onclick="appendToDisplay('+')">+</button>
-                    
-                    <button onclick="appendToDisplay('0')">0</button>
-                    <button onclick="appendToDisplay('.')">.</button>
-                    <button onclick="calculateResult()">=</button>
-                    <button onclick="deleteLastChar()">⌫</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Results Section -->
-        <div id="results-section" class="container hidden">
-            <h1>Test Results</h1>
-            <div class="results-summary">
-                <div class="score-card">
-                    <h2>Your Score</h2>
-                    <div class="score" id="final-score">0</div>
-                    <p>Correct Answers: <span id="correct-count">0</span>/30</p>
-                </div>
-                
-                <div class="review-section">
-                    <h3>Review Answers</h3>
-                    <div id="answers-review">
-                        <!-- Answers will be populated here -->
-                    </div>
-                </div>
-                
-                <button id="back-to-dashboard">Back to Dashboard</button>
-            </div>
-        </div>
     </div>
 
     <script src="script.js"></script>
+    <script>
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners for auth elements
+            document.getElementById('show-register').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('login-form').classList.remove('active');
+                document.getElementById('register-form').classList.add('active');
+            });
+            
+            document.getElementById('show-login').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('register-form').classList.remove('active');
+                document.getElementById('login-form').classList.add('active');
+            });
+            
+            document.getElementById('login-btn').addEventListener('click', login);
+            document.getElementById('register-btn').addEventListener('click', register);
+            
+            // Check if user is already logged in
+            checkUserSession();
+        });
+        
+        // Override checkUserSession to redirect to dashboard if authenticated
+        async function checkUserSession() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (session) {
+                    // Redirect to dashboard if already authenticated
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (error) {
+                console.error('Error checking session:', error);
+            }
+        }
+        
+        // Override login function to redirect to dashboard after successful login
+        async function login(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (!email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+                
+                if (error) {
+                    console.error('Login error:', error);
+                    
+                    if (error.message.includes('Email not confirmed')) {
+                        alert('Your email is not confirmed. Please check your email and click the confirmation link.');
+                        return;
+                    }
+                    
+                    alert('Login error: ' + error.message);
+                    return;
+                }
+                
+                if (data.user) {
+                    console.log('User logged in:', data.user);
+                    // Redirect to dashboard after successful login
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (err) {
+                console.error('Unexpected error during login:', err);
+                alert('An unexpected error occurred. Please check the console for details.');
+            }
+        }
+        
+        // Override register function to switch to login form after successful registration
+        async function register(e) {
+            e.preventDefault();
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            
+            if (!name || !email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: {
+                            full_name: name
+                        }
+                    }
+                });
+                
+                if (error) {
+                    console.error('Registration error:', error);
+                    alert('Registration error: ' + error.message);
+                    return;
+                }
+                
+                if (data.user) {
+                    console.log('User registered:', data.user);
+                    if (data.user.identities && data.user.identities.length === 0) {
+                        alert('Registration successful! Please check your email for the confirmation link.');
+                    } else {
+                        alert('Registration successful! Please log in.');
+                    }
+                    // Switch to login form after registration
+                    document.getElementById('register-form').classList.remove('active');
+                    document.getElementById('login-form').classList.add('active');
+                }
+            } catch (err) {
+                console.error('Unexpected error during registration:', err);
+                alert('An unexpected error occurred. Please check the console for details.');
+            }
+        }
+    </script>
 </body>
 </html>

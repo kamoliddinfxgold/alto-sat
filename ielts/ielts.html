@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Practice Test - SertPrep</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- IELTS Selection Section -->
+        <div id="ielts-selection" class="container">
+            <div class="top-back-button">
+                <button id="back-to-dashboard" onclick="backToDashboard()">Back to Dashboard</button>
+            </div>
+            <div class="clearfix"></div>
+            <header>
+                <h1>IELTS Practice Test</h1>
+            </header>
+            
+            <div class="dashboard-content">
+                <div class="features">
+                    <!-- Listening Option -->
+                    <div class="feature-card ielts-option" id="listening-option">
+                        <h3>Listening</h3>
+                        <p class="coming-soon">Coming Soon</p>
+                    </div>
+                    
+                    <!-- Reading Option -->
+                    <div class="feature-card ielts-option" id="reading-option" onclick="startReadingTest()">
+                        <h3>Reading</h3>
+                        <p>Academic & General Training</p>
+                    </div>
+                    
+                    <!-- Writing Option -->
+                    <div class="feature-card ielts-option" id="writing-option" onclick="startWritingTest()">
+                        <h3>Writing</h3>
+                        <p>Task 1 & Task 2</p>
+                    </div>
+                    
+                    <!-- Speaking Option -->
+                    <div class="feature-card ielts-option" id="speaking-option">
+                        <h3>Speaking</h3>
+                        <p class="coming-soon">Coming Soon</p>
+                    </div>
+                    
+                    <!-- All Tests Option -->
+                    <div class="feature-card ielts-option" id="all-tests-option" title="Complete IELTS practice test including Listening, Reading, Writing, and Speaking sections">
+                        <h3>All Tests</h3>
+                        <p class="coming-soon">Coming Soon</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reading Test Section (Placeholder) -->
+        <div id="reading-test" class="container hidden">
+            <div class="top-back-button">
+                <button id="back-to-ielts" onclick="showSelection()">Back to IELTS Options</button>
+            </div>
+            <div class="clearfix"></div>
+            <header>
+                <h1>IELTS Reading Practice Test</h1>
+            </header>
+            
+            <div class="test-container">
+                <h2>Reading Test Instructions</h2>
+                <p>This is a placeholder for the IELTS Reading test. In a complete implementation, this would contain:</p>
+                <ul>
+                    <li>Three reading passages</li>
+                    <li>40 questions in total</li>
+                    <li>60-minute time limit</li>
+                    <li>Answer submission and scoring</li>
+                </ul>
+                <button onclick="showSelection()">Back to IELTS Options</button>
+            </div>
+        </div>
+
+        <!-- Writing Test Section (Placeholder) -->
+        <div id="writing-test" class="container hidden">
+            <div class="top-back-button">
+                <button id="back-to-ielts-writing" onclick="showSelection()">Back to IELTS Options</button>
+            </div>
+            <div class="clearfix"></div>
+            <header>
+                <h1>IELTS Writing Practice Test</h1>
+            </header>
+            
+            <div class="test-container">
+                <h2>Writing Test Instructions</h2>
+                <p>This is a placeholder for the IELTS Writing test. In a complete implementation, this would contain:</p>
+                <ul>
+                    <li>Two writing tasks</li>
+                    <li>Task 1: Report/Letter (20 mins, 150 words)</li>
+                    <li>Task 2: Essay (40 mins, 250 words)</li>
+                    <li>Text editor for responses</li>
+                    <li>Submission and evaluation</li>
+                </ul>
+                <button onclick="showSelection()">Back to IELTS Options</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://ufmoftsasbwfeqerilpq.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmbW9mdHNhc2J3ZmVxZXJpbHBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4MzY3NjksImV4cCI6MjA4MDQxMjc2OX0.qGp-15_VWEPaK0vaCbmT2bIL0xd0Ntchh-ahvKiOOLw';
+        
+        // Initialize Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // Check user session when page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkUserSession();
+        });
+        
+        // Check if user is authenticated but don't redirect to login
+        async function checkUserSession() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (!session) {
+                    // Don't redirect to login page - let the main dashboard handle this
+                    console.log('No active session, but continuing to allow navigation');
+                }
+            } catch (error) {
+                console.error('Error checking session:', error);
+                // Don't redirect on error - let the main dashboard handle this
+                console.log('Session check error, but continuing to allow navigation');
+            }
+        }
+        
+        // Show the reading test section
+        function startReadingTest() {
+            window.location.href = 'reading.html';
+        }
+
+        // Show the writing test section
+        function startWritingTest() {
+            window.location.href = 'writing.html';
+        }
+
+        // Show the IELTS selection section
+        function showSelection() {
+            document.getElementById('ielts-selection').classList.remove('hidden');
+            document.getElementById('reading-test').classList.add('hidden');
+            document.getElementById('writing-test').classList.add('hidden');
+        }
+        
+        // Override back to dashboard function to preserve session
+        function backToDashboard() {
+            // Just redirect to main dashboard without checking session
+            // The main dashboard will handle session validation
+            window.location.href = '../index.html';
+        }
+    </script>
+</body>
+</html>

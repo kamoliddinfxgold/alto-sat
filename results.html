@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Results - SertPrep</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Sidebar -->
+        <div class="sidebar" id="main-sidebar">
+            <div class="sidebar-header">
+                <h2>User Menu</h2>
+                <button id="close-sidebar" class="close-btn">×</button>
+            </div>
+            <div class="sidebar-content">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <span id="user-initials">UN</span>
+                    </div>
+                    <div class="user-details">
+                        <h3 id="user-name">User Name</h3>
+                        <p id="user-email">user@example.com</p>
+                    </div>
+                </div>
+                
+                <div class="sidebar-menu">
+                    <button id="theme-toggle" class="menu-item">
+                        <span class="menu-icon">🌙</span>
+                        <span class="menu-text">Dark Mode</span>
+                    </button>
+                    <button id="logout-btn-sidebar" class="menu-item">
+                        <span class="menu-icon">🚪</span>
+                        <span class="menu-text">Logout</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Overlay for mobile -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        
+        <!-- Results Section -->
+        <div id="results-section" class="container">
+            <h1>SertPrep Test Results</h1>
+            <div class="results-summary">
+                <div class="score-card">
+                    <h2>Your Score</h2>
+                    <div class="score" id="final-score">0</div>
+                    <p>Correct Answers: <span id="correct-count">0</span>/60</p>
+                </div>
+                
+                <div class="review-section">
+                    <h3>Review Answers</h3>
+                    <div id="answers-review">
+                        <!-- Answers will be populated here -->
+                    </div>
+                </div>
+                
+                <button id="back-to-dashboard" onclick="backToDashboard()">Back to Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Back to Dashboard function
+        function backToDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+        
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check if user is authenticated
+            await checkUserSession();
+            
+            // Add event listener for back button
+            document.getElementById('back-to-dashboard').addEventListener('click', backToDashboard);
+            
+            // Sidebar event listeners
+            document.getElementById('close-sidebar').addEventListener('click', closeSidebar);
+            document.getElementById('sidebar-overlay').addEventListener('click', closeSidebar);
+            document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+            document.getElementById('logout-btn-sidebar').addEventListener('click', function(e) {
+                            e.preventDefault();
+                            logout();
+                        });
+            
+            // Render results if available
+            renderResults();
+        });
+        
+        // Function to render results (would be called after test submission)
+        function renderResults() {
+            // This would typically be called with actual results data
+            // For now, we'll just initialize the elements
+            console.log("Results page loaded");
+        }
+        
+        // Override checkUserSession to redirect to login if not authenticated
+        async function checkUserSession() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (!session) {
+                    // Redirect to login page if not authenticated
+                    window.location.href = 'index.html';
+                } else {
+                    // Update user info in sidebar
+                    updateUserInfo(session.user);
+                }
+            } catch (error) {
+                console.error('Error checking session:', error);
+                // Redirect to login page on error
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // Async logout function
+        async function logout() {
+            try {
+                // Sign out from Supabase
+                await supabase.auth.signOut();
+                
+                // Clear any stored session data
+                localStorage.clear();
+                
+                // Redirect to login page
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Error during logout:', error);
+                // Still redirect to login page even if there's an error
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

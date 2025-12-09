@@ -1,0 +1,1967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Test 3 - 40 Questions</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Modern Card-Based Layout */
+        .reading-test-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .reading-card {
+            background: linear-gradient(145deg, #1a1a1a, #222);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            max-height: 75vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .reading-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #FFD700, #FF8C00, #FFD700);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .passage-header {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .passage-header h2 {
+            color: #FFD700;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .passage-meta {
+            color: #aaa;
+            font-size: 0.9rem;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .highlighter-toggle-btn {
+            background: linear-gradient(145deg, #FFD700, #FFA000);
+            color: #333;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .highlighter-toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .highlighter-toggle-btn:active {
+            transform: translateY(0);
+        }
+
+        .passage-content {
+            line-height: 1.8;
+            font-size: 1.15rem;
+            color: #f0f0f0;
+        }
+
+        .passage-content p {
+            margin-bottom: 25px;
+            text-align: justify;
+            hyphens: auto;
+        }
+
+        .highlighted-term {
+            background: rgba(255, 215, 0, 0.15);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #FFD700;
+        }
+
+        /* Highlighter styles */
+        .highlight-yellow {
+            background-color: #FFEB3B;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .highlight-green {
+            background-color: #8BC34A;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .highlight-blue {
+            background-color: #4FC3F7;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .highlight-pink {
+            background-color: #F48FB1;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        /* Highlighter toolbar */
+        .highlighter-toolbar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 30px;
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .highlighter-tool {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        
+        .highlighter-tool:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+        
+        .highlighter-tool.active {
+            border-color: white;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+        
+        .highlighter-yellow { background-color: #FFEB3B; color: #333; }
+        .highlighter-green { background-color: #8BC34A; color: #333; }
+        .highlighter-blue { background-color: #4FC3F7; color: #333; }
+        .highlighter-pink { background-color: #F48FB1; color: #333; }
+        .highlighter-erase { background-color: #f44336; color: white; }
+        .highlighter-clear-all { background-color: #607D8B; color: white; }
+        
+        /* Note highlight style */
+        .highlight-note {
+            background-color: #9C27B0;
+            color: white;
+            padding: 2px 4px;
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-decoration-color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Note popup styles */
+        .note-popup {
+            position: absolute;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            width: 300px;
+            max-width: 90vw;
+        }
+        
+        .note-popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #444;
+        }
+        
+        .note-popup-header h3 {
+            margin: 0;
+            color: #9C27B0;
+            font-size: 1.1rem;
+        }
+        
+        .note-popup-close {
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .note-popup-close:hover {
+            color: white;
+        }
+        
+        .note-popup textarea {
+            width: 100%;
+            height: 100px;
+            background: #333;
+            border: 1px solid #555;
+            border-radius: 5px;
+            color: white;
+            padding: 10px;
+            resize: vertical;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        
+        .note-popup textarea:focus {
+            outline: none;
+            border-color: #9C27B0;
+        }
+        
+        .note-popup-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .note-popup-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .note-popup-save {
+            background: #9C27B0;
+            color: white;
+        }
+        
+        .note-popup-delete {
+            background: #f44336;
+            color: white;
+        }
+        
+        .note-popup-cancel {
+            background: #555;
+            color: white;
+        }
+
+        .questions-card {
+            background: linear-gradient(145deg, #1a1a1a, #222);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 65, 54, 0.1);
+            max-height: 75vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .questions-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #FF4136, #FF851B, #FF4136);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .questions-header {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 65, 54, 0.2);
+        }
+
+        .questions-header h2 {
+            color: #FF4136;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .question-stats {
+            color: #aaa;
+            font-size: 0.9rem;
+            display: flex;
+            gap: 20px;
+        }
+
+        /* Enhanced Question Items */
+        .question-item {
+            background: rgba(30, 30, 30, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .question-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 215, 0, 0.3);
+        }
+
+        .question-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .question-item.active {
+            border-color: #FFD700;
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            color: #f0f0f0;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .question-number {
+            display: inline-block;
+            background: #FF4136;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 15px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* Enhanced Options */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .option-card {
+            background: rgba(40, 40, 40, 0.9);
+            border: 2px solid #333;
+            border-radius: 12px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            min-height: 70px;
+        }
+
+        .option-card:hover {
+            background: rgba(50, 50, 50, 0.9);
+            border-color: rgba(255, 215, 0, 0.5);
+            transform: translateX(5px);
+        }
+
+        .option-card.selected {
+            background: rgba(46, 204, 64, 0.15);
+            border-color: #2ECC40;
+            transform: translateX(8px);
+        }
+
+        .option-card.incorrect {
+            background: rgba(255, 65, 54, 0.15);
+            border-color: #FF4136;
+        }
+
+        .option-letter {
+            background: #444;
+            color: #fff;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .option-card.selected .option-letter {
+            background: #2ECC40;
+            color: white;
+        }
+
+        .option-card.incorrect .option-letter {
+            background: #FF4136;
+            color: white;
+        }
+
+        .option-text {
+            color: #f0f0f0;
+            font-size: 1rem;
+            line-height: 1.4;
+            flex-grow: 1;
+        }
+
+        /* Enhanced Timer */
+        .test-timer {
+            background: linear-gradient(145deg, #1a1a1a, #222);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+            border: 2px solid #FF4136;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(255, 65, 54, 0.2);
+        }
+
+        .timer-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #FF4136;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 10px rgba(255, 65, 54, 0.3);
+        }
+
+        .timer-label {
+            color: #aaa;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Progress Indicator */
+        .progress-section {
+            background: linear-gradient(145deg, #1a1a1a, #222);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FF4136, #FF851B);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 5px;
+        }
+
+        /* Enhanced Navigation Buttons */
+        .test-navigation {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .nav-btn {
+            padding: 18px;
+            font-size: 1.1rem;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .nav-btn i {
+            font-size: 1.2rem;
+        }
+
+        .nav-btn.new-test {
+            background: linear-gradient(145deg, #004466, #006699);
+            color: white;
+        }
+
+        .nav-btn.save {
+            background: linear-gradient(145deg, #006622, #009944);
+            color: white;
+        }
+
+        .nav-btn.submit {
+            background: linear-gradient(145deg, #990000, #CC0000);
+            color: white;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* Test Actions */
+        .test-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .test-actions button {
+            padding: 18px;
+            font-size: 1.2rem;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .test-actions .back-btn {
+            background: #333;
+            color: #FFD700;
+            border: 2px solid #FFD700;
+        }
+
+        .test-actions .submit-test-btn {
+            background: linear-gradient(145deg, #FF4136, #FF851B);
+            color: white;
+        }
+
+        /* Enhanced Modal Styles */
+        .modal {
+            display: block;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.85);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: linear-gradient(145deg, #1a1a1a, #222);
+            margin: 3% auto;
+            padding: 40px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 20px;
+            width: 85%;
+            max-width: 900px;
+            position: relative;
+            color: #FFD700;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+        }
+        
+        .modal-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .modal-header h2 {
+            font-size: 2.2rem;
+            color: #FFD700;
+            margin-bottom: 10px;
+        }
+        
+        .modal-header .close {
+            color: #aaa;
+            position: absolute;
+            right: 25px;
+            top: 20px;
+            font-size: 36px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .modal-header .close:hover {
+            color: #FFD700;
+        }
+        
+        .score-card {
+            background: rgba(255, 215, 0, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .overall-score {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #FFD700;
+            text-align: center;
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+        
+        .band-score {
+            font-size: 1.5rem;
+            color: #2ECC40;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .detailed-results {
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 30px 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .reading-test-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .reading-card,
+            .questions-card {
+                max-height: 60vh;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .test-navigation {
+                grid-template-columns: 1fr;
+            }
+            
+            .test-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 25px;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #222;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #FFD700, #FF8C00);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #FF8C00, #FFD700);
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Improved Reading Test Section -->
+        <div id="reading-test" class="container">
+            <div class="top-back-button">
+                <button onclick="window.location.href='ielts.html'" class="back-btn">
+                    ← Back to IELTS Options
+                </button>
+            </div>
+            <div class="clearfix"></div>
+            
+            <header>
+                <h1 style="font-size: 2.5rem; margin-bottom: 10px;">📖 Reading Test 3 - 40 Questions</h1>
+                <p style="color: #aaa; font-size: 1.1rem;">Academic Reading | Time: 60 minutes | Questions: 40</p>
+            </header>
+            
+            <!-- Progress Section -->
+            <div class="progress-section">
+                <div class="progress-info">
+                    <span id="progress-text">Progress: 0/40 questions answered</span>
+                    <span id="time-remaining">Time Remaining: 60:00</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+            
+            <div class="reading-test-container">
+                <!-- Passage Card -->
+                <div class="reading-card">
+                    <div class="passage-header">
+                        <h2 id="passage-title">The History and Impact of the Internet</h2>
+                        <div class="passage-meta">
+                            <span>📄 Passage Length: 850 words</span>
+                            <span>🎯 Difficulty: Medium-Hard</span>
+                            <span>⏱️ Suggested Time: 20 minutes</span>
+                            <button class="highlighter-toggle-btn" onclick="toggleHighlighterToolbar()" title="Toggle Highlighter (Ctrl+H)">
+                                ✏️ Highlighter
+                            </button>
+                            <button class="highlighter-toggle-btn" onclick="toggleNotesSidebar()" title="View Notes" style="margin-left: 10px;">
+                                📝 Notes
+                            </button>
+                        </div>
+                    </div>
+                    <div class="passage-content" id="passage-content">
+                        <p>The internet has become one of the most transformative technologies in human history, fundamentally changing how we communicate, work, and access information. Its origins trace back to the 1960s when the U.S. Department of Defense developed ARPANET, a network designed to maintain communications even if parts of the network were destroyed. This decentralized approach proved remarkably resilient and laid the foundation for what would eventually become the global internet.</p>
+                        
+                        <p>Throughout the 1970s and 1980s, researchers and academics began connecting their computers to this network, primarily for sharing research data and communicating with colleagues. The development of TCP/IP protocols in 1983 standardized how computers communicated across the network, enabling different computer systems to work together seamlessly. This standardization was crucial for the internet's expansion beyond military and academic circles.</p>
+                        
+                        <p>The invention of the World Wide Web by Tim Berners-Lee in 1989 marked a pivotal moment in internet history. His creation of HTML, HTTP, and URLs made it possible for ordinary users to navigate and access information easily. By 1991, the first website went live, and by the mid-1990s, commercial internet service providers began offering access to the general public. This period saw the birth of iconic companies like Amazon, eBay, and Yahoo, which capitalized on the new digital landscape.</p>
+                        
+                        <p>The dot-com boom of the late 1990s brought unprecedented growth and speculation. Stock prices of internet companies soared, often without regard to profitability or business fundamentals. Many startups received massive investments despite having unproven business models. However, this bubble burst in 2000-2001, leading to the collapse of numerous companies and significant losses for investors. Despite this setback, survivors like Amazon and eBay emerged stronger and more focused on sustainable business practices.</p>
+                        
+                        <p>The internet's impact on society has been profound and multifaceted. In education, it has democratized access to information and enabled distance learning programs that reach students worldwide. Libraries have transformed from physical repositories of books into digital gateways connecting users to vast online resources. Research collaboration has accelerated as scholars can instantly share findings and collaborate across continents.</p>
+                        
+                        <p>Commerce has been revolutionized through e-commerce platforms that operate 24/7, allowing consumers to shop from anywhere and businesses to reach global markets without physical storefronts. Traditional retail has had to adapt or face obsolescence, with many brick-and-mortar stores closing while online retailers flourish. The gig economy, exemplified by companies like Uber and Airbnb, has created new employment opportunities while disrupting established industries.</p>
+                        
+                        <p>Socially, the internet has redefined how people connect and maintain relationships. Social media platforms enable users to share experiences, maintain connections across distances, and form communities around shared interests. However, this connectivity comes with challenges, including concerns about privacy, cyberbullying, and the spread of misinformation. Mental health experts have noted both positive and negative effects on interpersonal relationships and self-esteem.</p>
+                        
+                        <p>The digital divide remains a significant challenge, as access to high-speed internet is still limited in many rural and economically disadvantaged areas. This disparity affects educational opportunities, job prospects, and access to essential services. Governments and organizations worldwide are working to bridge this gap through infrastructure investments and policy initiatives.</p>
+                        
+                        <p>Looking forward, emerging technologies like 5G networks, artificial intelligence, and the Internet of Things promise to further transform our digital landscape. These developments will enable faster connections, smarter devices, and more immersive experiences. However, they also raise new questions about data security, algorithmic bias, and the concentration of technological power among a few dominant corporations.</p>
+                        
+                        <p>The internet's evolution continues to shape our world in ways both beneficial and concerning. As we move forward, striking a balance between innovation and responsible governance will be crucial for maximizing the internet's potential while minimizing its risks. The choices we make today about regulation, privacy, and digital literacy will determine how this powerful tool serves humanity in the decades to come.</p>
+                    </div>
+                </div>
+                
+                <!-- Questions Card -->
+                <div class="questions-card">
+                    <div class="questions-header">
+                        <h2>Questions 1-40</h2>
+                        <div class="question-stats">
+                            <span>📝 Multiple Choice</span>
+                            <span>✅ 0/40 Completed</span>
+                            <span>🎯 Score: 0/200</span>
+                        </div>
+                    </div>
+                    
+                    <div id="questions-container">
+                        <!-- Questions will be dynamically loaded here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Enhanced Timer -->
+            <div class="test-timer">
+                <div class="timer-label">Time Remaining</div>
+                <div class="timer-display" id="reading-timer">59:59</div>
+                <div style="color: #aaa; margin-top: 10px;">
+                    ⚠️ Test will auto-submit when time expires
+                </div>
+            </div>
+            
+            <!-- Navigation Buttons -->
+            <div class="test-navigation">
+                <button class="nav-btn new-test" id="new-reading-test">
+                    🔄 Get New Test
+                </button>
+                <button class="nav-btn save" id="save-answers">
+                    💾 Save Progress
+                </button>
+                <button class="nav-btn submit" id="submit-reading-answers">
+                    📤 Submit Test
+                </button>
+            </div>
+            
+            <!-- Main Test Actions -->
+            <div class="test-actions">
+                <button onclick="window.location.href='ielts.html'" class="back-btn">
+                    ← Back to IELTS Options
+                </button>
+                <button id="submit-reading-test" class="submit-test-btn">
+                    🎯 Final Submit
+                </button>
+            </div>
+            
+            <!-- Highlighter Toolbar -->
+            <div class="highlighter-toolbar" id="highlighter-toolbar" style="display: none;">
+                <div class="highlighter-tool highlighter-yellow" data-color="yellow" title="Yellow Highlight">
+                    <i>✏️</i>
+                </div>
+                <div class="highlighter-tool highlighter-green" data-color="green" title="Green Highlight">
+                    <i>✏️</i>
+                </div>
+                <div class="highlighter-tool highlighter-blue" data-color="blue" title="Blue Highlight">
+                    <i>✏️</i>
+                </div>
+                <div class="highlighter-tool highlighter-pink" data-color="pink" title="Pink Highlight">
+                    <i>✏️</i>
+                </div>
+                <div class="highlighter-tool highlighter-erase" data-color="erase" title="Erase Highlight">
+                    <i>🧹</i>
+                </div>
+                <div class="highlighter-tool highlighter-clear-all" data-color="clear-all" title="Clear All Highlights">
+                    <i>🗑️</i>
+                </div>
+                <div class="highlighter-tool" data-color="note" title="Add Note" style="background-color: #9C27B0; color: white;">
+                    <i>📝</i>
+                </div>
+            </div>
+            
+            <!-- Notes Sidebar -->
+            <div class="notes-sidebar" id="notes-sidebar" style="position: fixed; right: -350px; top: 0; width: 350px; height: 100vh; background: #2a2a2a; border-left: 1px solid #444; z-index: 1500; transition: right 0.3s ease; box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);">
+                <div style="height: 100%; display: flex; flex-direction: column;">
+                    <div style="padding: 20px; border-bottom: 1px solid #444; background: #333;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h2 style="margin: 0; color: #9C27B0;">📝 Notes</h2>
+                            <button id="close-notes-sidebar" style="background: none; border: none; color: #aaa; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                        </div>
+                    </div>
+                    <div id="notes-list" style="flex: 1; overflow-y: auto; padding: 20px;">
+                        <p style="color: #aaa; text-align: center;">No notes yet. Add notes using the note tool.</p>
+                    </div>
+                    <div style="padding: 15px; border-top: 1px solid #444; background: #333; text-align: center;">
+                        <button id="clear-all-notes" style="background: #f44336; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: 600;">Clear All Notes</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Results Modal -->
+            <div id="reading-results-modal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>🎉 Reading Test Results</h2>
+                        <span class="close" id="close-reading-results">&times;</span>
+                    </div>
+                    
+                    <div id="reading-results-content">
+                        <div class="score-card">
+                            <h3 style="text-align: center; margin-bottom: 10px;">Performance Summary</h3>
+                            <div class="overall-score" id="overall-score">0/200</div>
+                            <div class="band-score" id="ielts-band">IELTS Band: N/A</div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 2rem; color: #2ECC40;" id="correct-answers">0</div>
+                                    <div style="color: #aaa;">Correct Answers</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 2rem; color: #FF4136;" id="incorrect-answers">0</div>
+                                    <div style="color: #aaa;">Incorrect Answers</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 2rem; color: #FFD700;" id="percentage-score">0%</div>
+                                    <div style="color: #aaa;">Accuracy Rate</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="detailed-results" id="detailed-results">
+                            <!-- Detailed results will be loaded here -->
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 30px;">
+                            <button id="close-results-btn" style="padding: 15px 40px; font-size: 1.2rem;">
+                                Close Results
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://ufmoftsasbwfeqerilpq.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmbW9mdHNhc2J3ZmVxZXJpbHBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4MzY3NjksImV4cCI6MjA4MDQxMjc2OX0.qGp-15_VWEPaK0vaCbmT2bIL0xd0Ntchh-ahvKiOOLw';
+        
+        // Initialize Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // Questions data (40 questions)
+        const readingQuestions = [
+            // Questions 1-10
+            {
+                id: 1,
+                text: "What was the primary purpose of ARPANET when it was first developed?",
+                options: [
+                    "To facilitate online shopping",
+                    "To maintain communications during emergencies",
+                    "To connect universities for research purposes",
+                    "To create the first social media platform"
+                ],
+                correct: 1
+            },
+            {
+                id: 2,
+                text: "What role did TCP/IP protocols play in the development of the internet?",
+                options: [
+                    "They prevented unauthorized access to networks",
+                    "They standardized how computers communicated across the network",
+                    "They increased the speed of data transmission",
+                    "They encrypted sensitive information for security"
+                ],
+                correct: 1
+            },
+            {
+                id: 3,
+                text: "What was Tim Berners-Lee's significant contribution to the internet?",
+                options: [
+                    "He invented the first computer",
+                    "He developed the first email system",
+                    "He created HTML, HTTP, and URLs",
+                    "He founded the first internet service provider"
+                ],
+                correct: 2
+            },
+            {
+                id: 4,
+                text: "Which of the following companies was NOT mentioned as being founded during the early internet era?",
+                options: [
+                    "Amazon",
+                    "Google",
+                    "eBay",
+                    "Yahoo"
+                ],
+                correct: 1
+            },
+            {
+                id: 5,
+                text: "What characterized the dot-com boom of the late 1990s?",
+                options: [
+                    "Steady growth with proven business models",
+                    "Rapid expansion with little regard to profitability",
+                    "Government regulation of internet companies",
+                    "Focus on sustainable environmental practices"
+                ],
+                correct: 1
+            },
+            {
+                id: 6,
+                text: "How has the internet affected traditional libraries?",
+                options: [
+                    "Libraries have become obsolete",
+                    "Libraries now serve as digital gateways to online resources",
+                    "Libraries have reduced their physical collections",
+                    "Libraries have banned internet access"
+                ],
+                correct: 1
+            },
+            {
+                id: 7,
+                text: "What has been a significant impact of e-commerce on traditional retail?",
+                options: [
+                    "Traditional retail has seen increased profits",
+                    "Traditional retail has remained unaffected",
+                    "Many traditional stores have closed while online retailers flourish",
+                    "Traditional retail has eliminated online competition"
+                ],
+                correct: 2
+            },
+            {
+                id: 8,
+                text: "What is one social concern associated with internet connectivity?",
+                options: [
+                    "Increased face-to-face interactions",
+                    "Improved mental health outcomes",
+                    "Spread of misinformation",
+                    "Enhanced privacy protection"
+                ],
+                correct: 2
+            },
+            {
+                id: 9,
+                text: "What is meant by the term 'digital divide'?",
+                options: [
+                    "The gap between internet speeds in different countries",
+                    "The difference in hardware quality between manufacturers",
+                    "Limited access to high-speed internet in certain areas",
+                    "The variety of programming languages available"
+                ],
+                correct: 2
+            },
+            {
+                id: 10,
+                text: "What challenge does the concentration of technological power present?",
+                options: [
+                    "Increased competition among corporations",
+                    "Greater innovation in small companies",
+                    "Potential monopolization by dominant corporations",
+                    "Reduced consumer choice"
+                ],
+                correct: 2
+            },
+            
+            // Questions 11-20
+            {
+                id: 11,
+                text: "What was the foundational principle behind ARPANET's design?",
+                options: [
+                    "Centralized control for efficiency",
+                    "Decentralized approach for resilience",
+                    "Maximum speed for data transfer",
+                    "Exclusive access for government use"
+                ],
+                correct: 1
+            },
+            {
+                id: 12,
+                text: "During which time period did researchers begin connecting their computers to the network?",
+                options: [
+                    "1950s",
+                    "1960s",
+                    "1970s and 1980s",
+                    "1990s"
+                ],
+                correct: 2
+            },
+            {
+                id: 13,
+                text: "What year did the first website go live?",
+                options: [
+                    "1983",
+                    "1989",
+                    "1991",
+                    "1995"
+                ],
+                correct: 2
+            },
+            {
+                id: 14,
+                text: "What happened during the dot-com bust of 2000-2001?",
+                options: [
+                    "Internet usage declined significantly",
+                    "Numerous companies collapsed and investors faced losses",
+                    "Government regulation of the internet increased",
+                    "All internet companies became profitable"
+                ],
+                correct: 1
+            },
+            {
+                id: 15,
+                text: "Which companies survived the dot-com crash and became stronger?",
+                options: [
+                    "All internet companies",
+                    "Amazon and eBay",
+                    "Yahoo and Google",
+                    "eBay and Netflix"
+                ],
+                correct: 1
+            },
+            {
+                id: 16,
+                text: "What has the internet enabled in the field of education?",
+                options: [
+                    "Elimination of distance learning",
+                    "Democratization of access to information",
+                    "Standardization of teaching methods",
+                    "Reduction in research collaboration"
+                ],
+                correct: 1
+            },
+            {
+                id: 17,
+                text: "What characteristic defines gig economy companies like Uber and Airbnb?",
+                options: [
+                    "They employ only full-time workers",
+                    "They disrupt established industries",
+                    "They focus solely on traditional services",
+                    "They eliminate the need for technology"
+                ],
+                correct: 1
+            },
+            {
+                id: 18,
+                text: "What positive effect has the internet had on social connections?",
+                options: [
+                    "It has reduced global communication",
+                    "It has eliminated face-to-face relationships",
+                    "It enables users to maintain connections across distances",
+                    "It has decreased community formation"
+                ],
+                correct: 2
+            },
+            {
+                id: 19,
+                text: "What efforts are being made to address the digital divide?",
+                options: [
+                    "Eliminating internet access in urban areas",
+                    "Infrastructure investments and policy initiatives",
+                    "Reducing internet speeds for all users",
+                    "Limiting access to developed countries"
+                ],
+                correct: 1
+            },
+            {
+                id: 20,
+                text: "What do 5G networks, artificial intelligence, and IoT represent?",
+                options: [
+                    "Outdated technologies being phased out",
+                    "Emerging technologies transforming the digital landscape",
+                    "Security threats to current internet infrastructure",
+                    "Methods for reducing internet usage"
+                ],
+                correct: 1
+            },
+            
+            // Questions 21-30
+            {
+                id: 21,
+                text: "What was the original purpose of the internet according to the passage?",
+                options: [
+                    "Commercial transactions",
+                    "Military communication resilience",
+                    "Social networking",
+                    "Educational resource sharing"
+                ],
+                correct: 1
+            },
+            {
+                id: 22,
+                text: "Why was standardization of communication protocols important?",
+                options: [
+                    "It reduced internet costs",
+                    "It enabled different computer systems to work together",
+                    "It increased entertainment options",
+                    "It simplified user interfaces"
+                ],
+                correct: 1
+            },
+            {
+                id: 23,
+                text: "What factor contributed to the accessibility of the internet for the general public?",
+                options: [
+                    "Government prohibition of commercial ISPs",
+                    "Development of user-friendly web browsers",
+                    "Commercial internet service providers offering access",
+                    "Elimination of network protocols"
+                ],
+                correct: 2
+            },
+            {
+                id: 24,
+                text: "What characterized the stock prices of internet companies during the dot-com boom?",
+                options: [
+                    "Steady decline",
+                    "Moderate growth",
+                    "Soared regardless of profitability",
+                    "Remained stable"
+                ],
+                correct: 2
+            },
+            {
+                id: 25,
+                text: "What distinguishes successful post-crash internet companies?",
+                options: [
+                    "They avoided all investment",
+                    "They focused on sustainable business practices",
+                    "They eliminated competition",
+                    "They reduced employee benefits"
+                ],
+                correct: 1
+            },
+            {
+                id: 26,
+                text: "What has been the impact of the internet on research collaboration?",
+                options: [
+                    "Slowed international cooperation",
+                    "Accelerated sharing of findings",
+                    "Reduced scholarly communication",
+                    "Eliminated interdisciplinary studies"
+                ],
+                correct: 1
+            },
+            {
+                id: 27,
+                text: "What business model change has occurred in retail due to the internet?",
+                options: [
+                    "Elimination of 24/7 operations",
+                    "Shift from physical to online presence",
+                    "Reduction in global markets",
+                    "Increased dependence on local suppliers"
+                ],
+                correct: 1
+            },
+            {
+                id: 28,
+                text: "What dual effect has internet connectivity had on mental health?",
+                options: [
+                    "Only negative effects",
+                    "Only positive effects",
+                    "Both positive and negative effects",
+                    "No measurable effects"
+                ],
+                correct: 2
+            },
+            {
+                id: 29,
+                text: "Which groups are most affected by the digital divide?",
+                options: [
+                    "Urban professionals",
+                    "Rural and economically disadvantaged populations",
+                    "Technology company employees",
+                    "College-educated individuals"
+                ],
+                correct: 1
+            },
+            {
+                id: 30,
+                text: "What new concerns arise with emerging internet technologies?",
+                options: [
+                    "Decreased data collection",
+                    "Reduced algorithmic influence",
+                    "Questions about data security and algorithmic bias",
+                    "Elimination of corporate power"
+                ],
+                correct: 2
+            },
+            
+            // Questions 31-40
+            {
+                id: 31,
+                text: "What does the term 'decentralized approach' mean in the context of ARPANET?",
+                options: [
+                    "Single point of control",
+                    "Multiple independent control centers",
+                    "Limited geographic distribution",
+                    "Exclusive military access"
+                ],
+                correct: 1
+            },
+            {
+                id: 32,
+                text: "What was the significance of 1983 in internet development?",
+                options: [
+                    "First commercial ISP was established",
+                    "TCP/IP protocols were standardized",
+                    "World Wide Web was invented",
+                    "First email was sent"
+                ],
+                correct: 1
+            },
+            {
+                id: 33,
+                text: "What made the World Wide Web user-friendly for ordinary people?",
+                options: [
+                    "Complex programming requirements",
+                    "Creation of HTML, HTTP, and URLs",
+                    "High-cost subscription fees",
+                    "Limited content availability"
+                ],
+                correct: 1
+            },
+            {
+                id: 34,
+                text: "What business lesson emerged from the dot-com crash?",
+                options: [
+                    "Speculation leads to guaranteed profits",
+                    "Unproven business models can succeed",
+                    "Sustainable business practices are crucial",
+                    "Government regulation prevents success"
+                ],
+                correct: 2
+            },
+            {
+                id: 35,
+                text: "How has the internet transformed higher education?",
+                options: [
+                    "Eliminated distance learning programs",
+                    "Enabled worldwide access to educational resources",
+                    "Reduced international student enrollment",
+                    "Standardized all curriculum content"
+                ],
+                correct: 1
+            },
+            {
+                id: 36,
+                text: "What economic phenomenon has the internet facilitated?",
+                options: [
+                    "Elimination of freelance work",
+                    "Creation of the gig economy",
+                    "Reduction in global commerce",
+                    "Standardization of work hours"
+                ],
+                correct: 1
+            },
+            {
+                id: 37,
+                text: "What is a potential downside of social media connectivity?",
+                options: [
+                    "Increased privacy protection",
+                    "Reduced cyberbullying incidents",
+                    "Spread of false information",
+                    "Enhanced fact-checking mechanisms"
+                ],
+                correct: 2
+            },
+            {
+                id: 38,
+                text: "What approach is being used to reduce the digital divide?",
+                options: [
+                    "Limiting internet access in developed areas",
+                    "Infrastructure development and policy changes",
+                    "Increasing costs for internet services",
+                    "Reducing technology in schools"
+                ],
+                correct: 1
+            },
+            {
+                id: 39,
+                text: "What capability will 5G networks enhance?",
+                options: [
+                    "Slower device connections",
+                    "Faster data transmission speeds",
+                    "Reduced mobile device usage",
+                    "Limited Internet of Things applications"
+                ],
+                correct: 1
+            },
+            {
+                id: 40,
+                text: "What factors will determine the internet's future impact?",
+                options: [
+                    "Elimination of all regulations",
+                    "Concentration of power in all corporations",
+                    "Decisions about regulation, privacy, and digital literacy",
+                    "Reduction in technological advancement"
+                ],
+                correct: 2
+            }
+        ];
+        
+        // User answers storage
+        let userAnswers = {};
+        let totalQuestions = readingQuestions.length;
+        
+        // Timer functionality
+        let totalSeconds = 60 * 60; // 60 minutes
+        const timerElement = document.getElementById('reading-timer');
+        const timeRemainingElement = document.getElementById('time-remaining');
+        
+        // Check user session when page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkUserSession();
+            initReadingTest();
+            
+            // Update progress bar
+            updateProgress();
+        });
+        
+        // Check if user is authenticated but don't redirect to login
+        async function checkUserSession() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (!session) {
+                    // Don't redirect to login page - let the main dashboard handle this
+                    console.log('No active session, but continuing to allow navigation');
+                }
+            } catch (error) {
+                console.error('Error checking session:', error);
+                // Don't redirect on error - let the main dashboard handle this
+                console.log('Session check error, but continuing to allow navigation');
+            }
+        }
+        
+        // Initialize the reading test
+        function initReadingTest() {
+            loadQuestions();
+            
+            // Add event listeners
+            document.getElementById('new-reading-test').addEventListener('click', loadQuestions);
+            document.getElementById('save-answers').addEventListener('click', saveAnswers);
+            document.getElementById('submit-reading-answers').addEventListener('click', submitAnswers);
+            document.getElementById('close-reading-results').addEventListener('click', closeResults);
+            document.getElementById('close-results-btn').addEventListener('click', closeResults);
+            document.getElementById('submit-reading-test').addEventListener('click', submitAnswers);
+            
+            // Initialize question navigation
+            initQuestionNavigation();
+        }
+        
+        // Initialize question navigation and selection
+        function initQuestionNavigation() {
+            // Add click handlers to option cards
+            document.addEventListener('click', function(e) {
+                const optionCard = e.target.closest('.option-card');
+                if (optionCard) {
+                    const questionNum = optionCard.getAttribute('data-question');
+                    const answer = optionCard.getAttribute('data-answer');
+                    userAnswers[questionNum] = answer;
+                    
+                    // Update UI
+                    updateSelectedOption(questionNum, answer);
+                    updateProgress();
+                }
+                
+                // Question item click for navigation
+                const questionItem = e.target.closest('.question-item');
+                if (questionItem) {
+                    const questionNum = questionItem.getAttribute('data-question');
+                    scrollToQuestion(questionNum);
+                }
+            });
+        }
+        
+        // Update selected option UI
+        function updateSelectedOption(questionNum, answer) {
+            // Remove selected class from all options for this question
+            const questionElement = document.querySelector(`.question-item[data-question="${questionNum}"]`);
+            questionElement.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            const selectedCard = questionElement.querySelector(`.option-card[data-answer="${answer}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+            }
+            
+            // Mark question as answered
+            questionElement.classList.add('answered');
+        }
+        
+        // Load questions
+        function loadQuestions() {
+            // Update passage
+            document.getElementById('passage-title').textContent = "The History and Impact of the Internet";
+            
+            // Update questions
+            const questionsContainer = document.getElementById('questions-container');
+            questionsContainer.innerHTML = '';
+            
+            readingQuestions.forEach((q, index) => {
+                const questionNum = index + 1;
+                const questionDiv = document.createElement('div');
+                questionDiv.className = `question-item ${questionNum === 1 ? 'active' : ''}`;
+                questionDiv.setAttribute('data-question', questionNum);
+                questionDiv.innerHTML = `
+                    <div class="question-text">
+                        <span class="question-number">${questionNum}</span>
+                        ${q.text}
+                    </div>
+                    <div class="options-grid">
+                        ${q.options.map((option, optIndex) => {
+                            const letters = ['a', 'b', 'c', 'd'];
+                            const letter = letters[optIndex];
+                            return `
+                                <div class="option-card" data-question="${questionNum}" data-answer="${letter}">
+                                    <div class="option-letter">${letter.toUpperCase()}</div>
+                                    <div class="option-text">${option}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+                questionsContainer.appendChild(questionDiv);
+            });
+            
+            // Update progress info
+            document.querySelector('.question-stats').innerHTML = `
+                <span>📝 Multiple Choice</span>
+                <span>✅ 0/${totalQuestions} Completed</span>
+                <span>🎯 Score: 0/${totalQuestions * 5}</span>
+            `;
+            
+            // Reset user answers
+            userAnswers = {};
+            updateProgress();
+        }
+        
+        // Scroll to specific question
+        function scrollToQuestion(questionNum) {
+            const questionElement = document.querySelector(`.question-item[data-question="${questionNum}"]`);
+            if (questionElement) {
+                questionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Highlight active question
+                document.querySelectorAll('.question-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                questionElement.classList.add('active');
+            }
+        }
+        
+        // Update progress bar and stats
+        function updateProgress() {
+            const answeredCount = Object.keys(userAnswers).length;
+            const progressPercentage = (answeredCount / totalQuestions) * 100;
+            
+            // Update progress bar
+            document.getElementById('progress-fill').style.width = `${progressPercentage}%`;
+            document.getElementById('progress-text').textContent = `Progress: ${answeredCount}/${totalQuestions} questions answered`;
+            
+            // Update question stats
+            document.querySelector('.question-stats').innerHTML = `
+                <span>📝 Multiple Choice</span>
+                <span>✅ ${answeredCount}/${totalQuestions} Completed</span>
+                <span>🎯 Score: ${calculateCurrentScore()}/${totalQuestions * 5}</span>
+            `;
+        }
+        
+        // Calculate current score
+        function calculateCurrentScore() {
+            let score = 0;
+            
+            readingQuestions.forEach((q, index) => {
+                const questionNum = index + 1;
+                if (userAnswers[questionNum]) {
+                    const letters = ['a', 'b', 'c', 'd'];
+                    if (userAnswers[questionNum] === letters[q.correct]) {
+                        score += 5; // Each question worth 5 points
+                    }
+                }
+            });
+            
+            return score;
+        }
+        
+        // Save answers
+        function saveAnswers() {
+            const answeredCount = Object.keys(userAnswers).length;
+            const saveTime = new Date().toLocaleTimeString();
+            
+            // Show success message
+            const saveBtn = document.getElementById('save-answers');
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '✅ Saved!';
+            saveBtn.style.background = 'linear-gradient(145deg, #006622, #009944)';
+            
+            setTimeout(() => {
+                saveBtn.innerHTML = originalText;
+                saveBtn.style.background = 'linear-gradient(145deg, #006622, #009944)';
+            }, 2000);
+            
+            console.log(`Saved ${answeredCount} answers at ${saveTime}`);
+        }
+        
+        // Submit answers and show results
+        function submitAnswers() {
+            const answeredCount = Object.keys(userAnswers).length;
+            if (answeredCount < totalQuestions) {
+                if (!confirm(`You have answered ${answeredCount} out of ${totalQuestions} questions. Do you want to submit anyway?`)) {
+                    return;
+                }
+            }
+            
+            let correctCount = 0;
+            const letters = ['a', 'b', 'c', 'd'];
+            
+            // Calculate score
+            readingQuestions.forEach((q, index) => {
+                const questionNum = index + 1;
+                if (userAnswers[questionNum] === letters[q.correct]) {
+                    correctCount++;
+                }
+            });
+            
+            // Calculate statistics
+            const percentage = Math.round((correctCount / totalQuestions) * 100);
+            const ieltsBand = calculateIeltsBand(percentage);
+            const totalScore = correctCount * 5;
+            
+            // Display results
+            document.getElementById('correct-answers').textContent = correctCount;
+            document.getElementById('incorrect-answers').textContent = totalQuestions - correctCount;
+            document.getElementById('percentage-score').textContent = `${percentage}%`;
+            document.getElementById('overall-score').textContent = `${totalScore}/${totalQuestions * 5}`;
+            document.getElementById('ielts-band').textContent = `IELTS Band: ${ieltsBand}`;
+            
+            // Show detailed results
+            const detailedResults = document.getElementById('detailed-results');
+            detailedResults.innerHTML = '<h3 style="margin-bottom: 20px;">📋 Question-by-Question Results:</h3>';
+            
+            readingQuestions.forEach((q, index) => {
+                const questionNum = index + 1;
+                const userAnswer = userAnswers[questionNum] || 'Not answered';
+                const correctAnswer = letters[q.correct];
+                const isCorrect = userAnswer === correctAnswer;
+                const optionText = q.options[correctAnswer.charCodeAt(0) - 97] || '';
+                
+                const resultItem = document.createElement('div');
+                resultItem.className = `result-item ${isCorrect ? 'correct' : 'incorrect'}`;
+                resultItem.style.padding = '20px';
+                resultItem.style.margin = '15px 0';
+                resultItem.style.borderRadius = '10px';
+                resultItem.innerHTML = `
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <div style="background: ${isCorrect ? '#2ECC40' : '#FF4136'}; 
+                                    color: white; 
+                                    width: 30px; 
+                                    height: 30px; 
+                                    border-radius: 50%; 
+                                    display: flex; 
+                                    align-items: center; 
+                                    justify-content: center;
+                                    margin-right: 15px;
+                                    font-weight: bold;">
+                            ${isCorrect ? '✓' : '✗'}
+                        </div>
+                        <strong style="font-size: 1.1rem;">Question ${questionNum}: ${isCorrect ? 'Correct' : 'Incorrect'}</strong>
+                    </div>
+                    <div style="margin-left: 45px;">
+                        <p><strong>Your answer:</strong> ${userAnswer.toUpperCase()} ${!isCorrect && userAnswer !== 'Not answered' ? 
+                            `("${q.options[userAnswer.charCodeAt(0) - 97]}")` : ''}</p>
+                        ${!isCorrect ? `
+                            <p><strong>Correct answer:</strong> ${correctAnswer.toUpperCase()} ("${optionText}")</p>
+                        ` : ''}
+                    </div>
+                `;
+                detailedResults.appendChild(resultItem);
+            });
+            
+            // Show results modal
+            document.getElementById('reading-results-modal').classList.remove('hidden');
+        }
+        
+        // Calculate estimated IELTS band score
+        function calculateIeltsBand(percentage) {
+            if (percentage >= 90) return '9.0';
+            if (percentage >= 80) return '8.0 - 8.5';
+            if (percentage >= 70) return '7.0 - 7.5';
+            if (percentage >= 60) return '6.0 - 6.5';
+            if (percentage >= 50) return '5.0 - 5.5';
+            if (percentage >= 40) return '4.0 - 4.5';
+            return '3.0 or below';
+        }
+        
+        // Close results modal
+        function closeResults() {
+            document.getElementById('reading-results-modal').classList.add('hidden');
+        }
+        
+        // Timer functions
+        function updateTimer() {
+            if (totalSeconds <= 0) {
+                timerElement.textContent = "00:00";
+                timeRemainingElement.textContent = "Time's up!";
+                alert("Time's up! The test will be submitted automatically.");
+                submitAnswers();
+                return;
+            }
+            
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            timeRemainingElement.textContent = `Time Remaining: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            totalSeconds--;
+        }
+        
+        // Update timer every second
+        setInterval(updateTimer, 1000);
+        updateTimer();
+        
+        // Highlighter functionality
+        let currentHighlightColor = null;
+        let isHighlightingEnabled = false;
+        let isNotesSidebarOpen = false;
+        
+        // Show/hide highlighter toolbar
+        function toggleHighlighterToolbar() {
+            const toolbar = document.getElementById('highlighter-toolbar');
+            isHighlightingEnabled = !isHighlightingEnabled;
+            toolbar.style.display = isHighlightingEnabled ? 'flex' : 'none';
+            
+            // Add visual indication to reading card
+            const readingCard = document.querySelector('.reading-card');
+            if (isHighlightingEnabled) {
+                readingCard.style.boxShadow = '0 0 0 3px #FFD700';
+            } else {
+                readingCard.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.5)';
+                deactivateAllTools();
+            }
+        }
+        
+        // Toggle notes sidebar
+        function toggleNotesSidebar() {
+            const sidebar = document.getElementById('notes-sidebar');
+            isNotesSidebarOpen = !isNotesSidebarOpen;
+            sidebar.style.right = isNotesSidebarOpen ? '0px' : '-350px';
+            
+            // Refresh notes list when opening
+            if (isNotesSidebarOpen) {
+                setTimeout(refreshNotesList, 300);
+            }
+        }
+        
+        // Set current highlight color
+        function setHighlightColor(color) {
+            if (color === 'clear-all') {
+                clearAllHighlights();
+                return;
+            }
+            
+            if (color === 'note') {
+                // Activate note mode
+                currentHighlightColor = 'note';
+                activateTool('note');
+                showHighlightNotification('Select text to add a note');
+                return;
+            }
+            
+            currentHighlightColor = color;
+            activateTool(color);
+        }
+        
+        // Clear all highlights from the passage
+        function clearAllHighlights() {
+            const passageContent = document.getElementById('passage-content');
+            const highlightedElements = passageContent.querySelectorAll('[class*="highlight-"]');
+            
+            // Check if there are any highlights to clear
+            if (highlightedElements.length === 0) {
+                showHighlightNotification('No highlights to clear!');
+                return;
+            }
+            
+            // Convert NodeList to array to avoid issues while modifying DOM
+            const elementsArray = Array.from(highlightedElements);
+            
+            elementsArray.forEach(element => {
+                // Replace the highlighted span with its text content
+                const textNode = document.createTextNode(element.textContent);
+                element.parentNode.replaceChild(textNode, element);
+            });
+            
+            // Save the cleared state
+            saveHighlights();
+            
+            // Show notification
+            showHighlightNotification(`Cleared ${elementsArray.length} highlights!`);
+            
+            // Hide toolbar
+            toggleHighlighterToolbar();
+        }
+        
+        // Clear all notes
+        function clearAllNotes() {
+            const passageContent = document.getElementById('passage-content');
+            const noteElements = passageContent.querySelectorAll('.highlight-note');
+            
+            if (noteElements.length === 0) {
+                showHighlightNotification('No notes to clear!');
+                return;
+            }
+            
+            noteElements.forEach(noteElement => {
+                const textNode = document.createTextNode(noteElement.textContent);
+                noteElement.parentNode.replaceChild(textNode, noteElement);
+            });
+            
+            showHighlightNotification(`Cleared ${noteElements.length} notes!`);
+            saveHighlights();
+            setTimeout(refreshNotesList, 100);
+        }
+        
+        // Activate tool visually
+        function activateTool(color) {
+            // Deactivate all tools
+            deactivateAllTools();
+            
+            // Activate selected tool
+            const tool = document.querySelector(`.highlighter-tool[data-color="${color}"]`);
+            if (tool) {
+                tool.classList.add('active');
+            }
+        }
+        
+        // Deactivate all tools
+        function deactivateAllTools() {
+            document.querySelectorAll('.highlighter-tool').forEach(tool => {
+                tool.classList.remove('active');
+            });
+        }
+        
+        // Apply highlight to selected text
+        function applyHighlight(color) {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0 && selection.toString().trim() !== '') {
+                const range = selection.getRangeAt(0);
+                const selectedText = selection.toString();
+                
+                // Check if selection is within the passage content
+                const passageContent = document.getElementById('passage-content');
+                if (!passageContent.contains(range.commonAncestorContainer)) {
+                    return;
+                }
+                
+                // Handle note functionality
+                if (color === 'note') {
+                    createNote(range, selectedText);
+                    return;
+                }
+                
+                // Handle erase functionality
+                if (color === 'erase') {
+                    // Remove highlights from selected text
+                    removeHighlightsInRange(range);
+                    showHighlightNotification('Highlight removed!');
+                    return;
+                }
+                
+                // Check if we're selecting already highlighted text
+                const ancestor = range.commonAncestorContainer;
+                if (ancestor.nodeType === Node.ELEMENT_NODE && ancestor.className && ancestor.className.includes('highlight-')) {
+                    // Already highlighted - change color instead
+                    ancestor.className = `highlight-${color}`;
+                    window.getSelection().removeAllRanges();
+                    showHighlightNotification('Highlight color changed!');
+                    return;
+                }
+                
+                // Create highlight element
+                const highlightSpan = document.createElement('span');
+                highlightSpan.className = `highlight-${color}`;
+                highlightSpan.textContent = selectedText;
+                
+                // Delete the content and insert the highlighted element
+                range.deleteContents();
+                range.insertNode(highlightSpan);
+                
+                // Clear selection
+                window.getSelection().removeAllRanges();
+                
+                // Show notification
+                showHighlightNotification('Text highlighted!');
+            }
+        }
+        
+        // Create a note for selected text
+        function createNote(range, selectedText) {
+            // Create note element
+            const noteSpan = document.createElement('span');
+            noteSpan.className = 'highlight-note';
+            noteSpan.textContent = selectedText;
+            noteSpan.dataset.noteId = 'note_' + Date.now(); // Unique ID for the note
+            
+            // Delete the content and insert the note element
+            range.deleteContents();
+            range.insertNode(noteSpan);
+            
+            // Clear selection
+            window.getSelection().removeAllRanges();
+            
+            // Show note popup for editing
+            showNotePopup(noteSpan, '');
+        }
+
+        // Show temporary notification when text is highlighted
+        function showHighlightNotification(message) {
+            // Remove any existing notifications
+            const existingNotification = document.getElementById('highlight-notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.id = 'highlight-notification';
+            notification.textContent = message;
+            notification.style.position = 'fixed';
+            notification.style.bottom = '90px';
+            notification.style.left = '50%';
+            notification.style.transform = 'translateX(-50%)';
+            notification.style.backgroundColor = 'rgba(30, 30, 30, 0.9)';
+            notification.style.color = 'white';
+            notification.style.padding = '10px 20px';
+            notification.style.borderRadius = '20px';
+            notification.style.zIndex = '1001';
+            notification.style.fontWeight = 'bold';
+            notification.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.3)';
+            
+            // Add to document
+            document.body.appendChild(notification);
+            
+            // Remove after 2 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 2000);
+        }
+        
+        // Refresh notes list in sidebar
+        function refreshNotesList() {
+            const notesList = document.getElementById('notes-list');
+            const passageContent = document.getElementById('passage-content');
+            const noteElements = passageContent.querySelectorAll('.highlight-note[data-note]');
+            
+            if (noteElements.length === 0) {
+                notesList.innerHTML = '<p style="color: #aaa; text-align: center;">No notes yet. Add notes using the note tool.</p>';
+                return;
+            }
+            
+            let notesHTML = '';
+            noteElements.forEach((noteElement, index) => {
+                const noteText = noteElement.dataset.note ? decodeURIComponent(noteElement.dataset.note) : '';
+                const notePreview = noteText.length > 100 ? noteText.substring(0, 100) + '...' : noteText;
+                
+                notesHTML += `
+                    <div style="background: #333; border-radius: 8px; padding: 15px; margin-bottom: 15px; border-left: 3px solid #9C27B0;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                            <strong style="color: #9C27B0;">Note ${index + 1}</strong>
+                            <button class="delete-note-btn" data-note-id="${noteElement.dataset.noteId}" style="background: none; border: none; color: #f44336; cursor: pointer; font-size: 1.2rem;">&times;</button>
+                        </div>
+                        <p style="color: #f0f0f0; margin: 0; white-space: pre-wrap;">${notePreview}</p>
+                        <div style="margin-top: 10px;">
+                            <button class="view-note-btn" data-note-id="${noteElement.dataset.noteId}" style="background: #9C27B0; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">View Full Note</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            notesList.innerHTML = notesHTML;
+            
+            // Add event listeners to view/delete buttons
+            document.querySelectorAll('.view-note-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const noteId = this.getAttribute('data-note-id');
+                    const noteElement = document.querySelector(`.highlight-note[data-note-id="${noteId}"]`);
+                    if (noteElement) {
+                        const noteText

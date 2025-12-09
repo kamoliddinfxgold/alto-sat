@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Writing Test - SertPrep</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="writing_data.js"></script>
+    <style>
+        /* Additional styles specific to the writing test */
+        .writing-test-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .task-container {
+            background: #222;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #333;
+        }
+
+        .task-container h2 {
+            color: #FFD700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .task-description {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .text-editor {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            background: #111;
+            color: #FFD700;
+            border: 2px solid #333;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            resize: vertical;
+        }
+
+        .word-count {
+            text-align: right;
+            margin-top: 10px;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .timer {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 65, 54, 0.1);
+            border-radius: 10px;
+            border: 2px solid #FF4136;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #FF4136;
+            margin: 20px 0;
+        }
+
+        .test-actions {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .test-actions button {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: block;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+        }
+        
+        .modal-content {
+            background-color: #222;
+            margin: 5% auto;
+            padding: 30px;
+            border: 2px solid #333;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 800px;
+            position: relative;
+            color: #FFD700;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 10px;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: #FFD700;
+        }
+        
+        .score-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 10px;
+        }
+        
+        .overall-score {
+            text-align: center;
+            font-size: 1.5rem;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 10px;
+            border: 1px solid #FFD700;
+        }
+        
+        .evaluation-criteria {
+            margin: 10px 0;
+        }
+        
+        .evaluation-criteria h4 {
+            margin: 10px 0 5px 0;
+            color: #FFD700;
+        }
+        
+        .evaluation-criteria p {
+            margin: 5px 0;
+            color: #ccc;
+        }
+        
+        .result-item {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #333;
+        }
+        
+        .result-item.correct {
+            border-color: #2ECC40;
+            background: rgba(46, 204, 64, 0.1);
+        }
+        
+        .result-item.incorrect {
+            border-color: #FF4136;
+            background: rgba(255, 65, 54, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .test-actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .test-actions button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Writing Test Section -->
+        <div id="writing-test" class="container">
+            <div class="top-back-button">
+                <button onclick="window.location.href='ielts.html'">Back to IELTS Options</button>
+            </div>
+            <div class="clearfix"></div>
+            <header>
+                <h1>IELTS Writing Practice Test</h1>
+            </header>
+            
+            <div class="writing-test-layout">
+                <!-- Task 1 -->
+                <div class="task-container">
+                    <h2>Task 1</h2>
+                    <div class="task-description">
+                        <p><strong>Time: 20 minutes | Word limit: At least 150 words</strong></p>
+                        <p id="task1-prompt">You should spend about 20 minutes on this task. The chart below shows the percentage of the population living in cities in different continents from 1950 to 2010.</p>
+                        <p>Summarize the information by selecting and reporting the main features, and make comparisons where relevant.</p>
+                        <p>Write at least 150 words.</p>
+                    </div>
+                    <textarea class="text-editor" id="task1-response" placeholder="Write your response here..."></textarea>
+                    <div class="word-count">Word count: <span id="word-count-1">0</span></div>
+                </div>
+                
+                <!-- Task 2 -->
+                <div class="task-container">
+                    <h2>Task 2</h2>
+                    <div class="task-description">
+                        <p><strong>Time: 40 minutes | Word limit: At least 250 words</strong></p>
+                        <p id="task2-prompt">You should spend about 40 minutes on this task. Write about the following topic:</p>
+                        <p id="task2-topic">Some people believe that technology has made our lives more complicated, while others think it has simplified our daily routines.</p>
+                        <p>Discuss both views and give your own opinion.</p>
+                        <p>Write at least 250 words.</p>
+                    </div>
+                    <textarea class="text-editor" id="task2-response" placeholder="Write your response here..."></textarea>
+                    <div class="word-count">Word count: <span id="word-count-2">0</span></div>
+                </div>
+            </div>
+            
+            <div class="timer">
+                <p>Time Remaining: <span id="writing-timer">59:59</span></p>
+            </div>
+            
+            <div class="test-actions">
+                <button onclick="window.location.href='ielts.html'">Back to IELTS Options</button>
+                <button id="submit-writing-test">Submit Test</button>
+                <button id="get-new-prompts">Get New Prompts</button>
+            </div>
+            
+            <!-- Evaluation Modal -->
+            <div id="evaluation-modal" class="modal hidden">
+                <div class="modal-content">
+                    <span class="close" id="close-evaluation">&times;</span>
+                    <h2>Writing Evaluation</h2>
+                    <div id="evaluation-results">
+                        <div class="score-section">
+                            <h3>Task 1 Score: <span id="task1-score">N/A</span>/9</h3>
+                            <div class="score-details" id="task1-details"></div>
+                        </div>
+                        <div class="score-section">
+                            <h3>Task 2 Score: <span id="task2-score">N/A</span>/9</h3>
+                            <div class="score-details" id="task2-details"></div>
+                        </div>
+                        <div class="overall-score">
+                            <h3>Overall Band Score: <span id="overall-score">N/A</span></h3>
+                        </div>
+                        <button id="close-evaluation-btn">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://ufmoftsasbwfeqerilpq.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmbW9mdHNhc2J3ZmVxZXJpbHBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4MzY3NjksImV4cCI6MjA4MDQxMjc2OX0.qGp-15_VWEPaK0vaCbmT2bIL0xd0Ntchh-ahvKiOOLw';
+        
+        // Initialize Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // Use the external writing prompts data
+        const task1Prompts = ieltsWritingPrompts.task1;
+        const task2Topics = ieltsWritingPrompts.task2;
+        
+        // Check user session when page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkUserSession();
+            
+            // Add word count functionality
+            const textAreas = document.querySelectorAll('.text-editor');
+            textAreas.forEach((textarea, index) => {
+                textarea.addEventListener('input', function() {
+                    const wordCount = this.value.trim() === '' ? 0 : this.value.trim().split(/\s+/).length;
+                    document.getElementById(`word-count-${index + 1}`).textContent = wordCount;
+                });
+            });
+            
+            // Add event listeners
+            document.getElementById('submit-writing-test').addEventListener('click', evaluateWriting);
+            document.getElementById('get-new-prompts').addEventListener('click', getRandomPrompts);
+            document.getElementById('close-evaluation').addEventListener('click', closeEvaluation);
+            document.getElementById('close-evaluation-btn').addEventListener('click', closeEvaluation);
+            
+            // Set initial random prompts
+            getRandomPrompts();
+        });
+        
+        // Check if user is authenticated but don't redirect to login
+        async function checkUserSession() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (!session) {
+                    // Don't redirect to login page - let the main dashboard handle this
+                    console.log('No active session, but continuing to allow navigation');
+                }
+            } catch (error) {
+                console.error('Error checking session:', error);
+                // Don't redirect on error - let the main dashboard handle this
+                console.log('Session check error, but continuing to allow navigation');
+            }
+        }
+        
+        // Get random prompts for both tasks
+        function getRandomPrompts() {
+            const randomTask1 = Math.floor(Math.random() * task1Prompts.length);
+            const randomTask2 = Math.floor(Math.random() * task2Topics.length);
+            
+            document.getElementById('task1-prompt').textContent = task1Prompts[randomTask1].prompt;
+            document.getElementById('task2-topic').textContent = task2Topics[randomTask2].topic;
+            
+            // Clear previous responses
+            document.getElementById('task1-response').value = '';
+            document.getElementById('task2-response').value = '';
+            document.getElementById('word-count-1').textContent = '0';
+            document.getElementById('word-count-2').textContent = '0';
+        }
+        
+        // Evaluate writing based on IELTS criteria
+        function evaluateWriting() {
+            const task1Response = document.getElementById('task1-response').value;
+            const task2Response = document.getElementById('task2-response').value;
+            
+            const task1WordCount = task1Response.trim() === '' ? 0 : task1Response.trim().split(/\s+/).length;
+            const task2WordCount = task2Response.trim() === '' ? 0 : task2Response.trim().split(/\s+/).length;
+            
+            // Check word count requirements
+            if (task1WordCount < 150) {
+                alert(`Task 1 requires at least 150 words. Your response is ${task1WordCount} words.`);
+                return;
+            }
+            
+            if (task2WordCount < 250) {
+                alert(`Task 2 requires at least 250 words. Your response is ${task2WordCount} words.`);
+                return;
+            }
+            
+            // Evaluate Task 1
+            const task1Score = evaluateTask(task1Response, 'task1');
+            const task1Details = generateScoreDetails(task1Score, 'task1');
+            
+            // Evaluate Task 2
+            const task2Score = evaluateTask(task2Response, 'task2');
+            const task2Details = generateScoreDetails(task2Score, 'task2');
+            
+            // Calculate overall score
+            const overallScore = ((task1Score + task2Score) / 2).toFixed(1);
+            
+            // Display results
+            document.getElementById('task1-score').textContent = task1Score;
+            document.getElementById('task1-details').innerHTML = task1Details;
+            document.getElementById('task2-score').textContent = task2Score;
+            document.getElementById('task2-details').innerHTML = task2Details;
+            document.getElementById('overall-score').textContent = overallScore;
+            
+            // Show evaluation modal
+            document.getElementById('evaluation-modal').classList.remove('hidden');
+        }
+        
+        // Enhanced evaluation algorithm based on IELTS criteria
+        function evaluateTask(response, taskType) {
+            // This is a simplified evaluation algorithm
+            // In a real implementation, this would be much more sophisticated
+            
+            const wordCount = response.trim() === '' ? 0 : response.trim().split(/\s+/).length;
+            let score = 0;
+            
+            // Task Achievement/Response (25% of score)
+            if (taskType === 'task1') {
+                // For Task 1, check if response summarizes key information
+                const task1Keywords = ['chart', 'graph', 'table', 'diagram', 'figure', 'shows', 'illustrates', 'compares', 'percentage', 'data'];
+                let keywordMatches = 0;
+                task1Keywords.forEach(keyword => {
+                    if (response.toLowerCase().includes(keyword)) keywordMatches++;
+                });
+                
+                if (keywordMatches >= 5) {
+                    score += 2.25; // 25% of 9
+                } else if (keywordMatches >= 3) {
+                    score += 1.5;
+                } else {
+                    score += 0.75;
+                }
+            } else {
+                // For Task 2, check if response addresses both views and gives opinion
+                const opinionKeywords = ['opinion', 'believe', 'think', 'consider', 'view', 'perspective', 'argument', 'point of view'];
+                const discussionKeywords = ['however', 'on the other hand', 'alternatively', 'conversely', 'whereas', 'although', 'despite'];
+                
+                let opinionMatches = 0;
+                let discussionMatches = 0;
+                
+                opinionKeywords.forEach(keyword => {
+                    if (response.toLowerCase().includes(keyword)) opinionMatches++;
+                });
+                
+                discussionKeywords.forEach(keyword => {
+                    if (response.toLowerCase().includes(keyword)) discussionMatches++;
+                });
+                
+                if (opinionMatches >= 3 && discussionMatches >= 2) {
+                    score += 2.25; // 25% of 9
+                } else if (opinionMatches >= 2 && discussionMatches >= 1) {
+                    score += 1.5;
+                } else {
+                    score += 0.75;
+                }
+            }
+            
+            // Coherence and Cohesion (25% of score)
+            const paragraphCount = (response.match(/\n\n/g) || []).length + 1;
+            const linkingWords = ['firstly', 'secondly', 'moreover', 'furthermore', 'in addition', 'however', 'therefore', 'consequently', 'as a result'];
+            let linkingWordCount = 0;
+            linkingWords.forEach(word => {
+                if (response.toLowerCase().includes(word)) linkingWordCount++;
+            });
+            
+            if (paragraphCount >= 4 && linkingWordCount >= 5) {
+                score += 2.25; // 25% of 9
+            } else if (paragraphCount >= 3 && linkingWordCount >= 3) {
+                score += 1.5;
+            } else {
+                score += 0.75;
+            }
+            
+            // Lexical Resource (25% of score)
+            const uniqueWords = new Set(response.toLowerCase().match(/\b\w+\b/g) || []);
+            const lexicalVariety = uniqueWords.size / Math.max(1, wordCount);
+            
+            // Check for advanced vocabulary
+            const advancedWords = ['significant', 'substantial', 'considerable', 'notable', 'remarkable', 'dramatic', 'gradual', 'steady', 'fluctuation', 'trend', 'pattern'];
+            let advancedWordCount = 0;
+            advancedWords.forEach(word => {
+                if (response.toLowerCase().includes(word)) advancedWordCount++;
+            });
+            
+            if (lexicalVariety > 0.6 && advancedWordCount >= 5) {
+                score += 2.25; // 25% of 9
+            } else if (lexicalVariety > 0.5 && advancedWordCount >= 3) {
+                score += 1.5;
+            } else {
+                score += 0.75;
+            }
+            
+            // Grammatical Range and Accuracy (25% of score)
+            // Simple check for sentence variety and complex structures
+            const sentences = response.split(/[.!?]+/).filter(s => s.trim().length > 0);
+            const longSentences = sentences.filter(s => s.split(' ').length > 15).length;
+            const shortSentences = sentences.filter(s => s.split(' ').length < 8).length;
+            
+            // Check for complex sentence structures
+            const complexStructures = ['which', 'that', 'although', 'because', 'since', 'while'];
+            let complexCount = 0;
+            complexStructures.forEach(structure => {
+                if (response.toLowerCase().includes(structure)) complexCount++;
+            });
+            
+            if (longSentences > 2 && shortSentences > 2 && complexCount > 5) {
+                score += 2.25; // 25% of 9
+            } else if ((longSentences > 1 || shortSentences > 1) && complexCount > 3) {
+                score += 1.5;
+            } else {
+                score += 0.75;
+            }
+            
+            // Ensure score is between 1 and 9
+            return Math.max(1, Math.min(9, Math.round(score)));
+        }
+        
+        // Generate detailed score explanation
+        function generateScoreDetails(score, taskType) {
+            const bandDescriptions = {
+                9: "Expert User - Has fully operational command of the language",
+                8: "Very Good User - Has fully operational command of the language with only occasional inaccuracies",
+                7: "Good User - Has operational command of the language, though with occasional inaccuracies",
+                6: "Competent User - Has generally effective command of the language",
+                5: "Modest User - Has partial command of the language",
+                4: "Limited User - Basic competence is limited to familiar situations",
+                3: "Extremely Limited User - Conveys and understands only general meaning",
+                2: "Intermittent User - Has great difficulty understanding spoken and written English",
+                1: "Non User - Can use only a few isolated words"
+            };
+            
+            const description = bandDescriptions[score] || "Unknown";
+            
+            return `
+                <div class="evaluation-criteria">
+                    <h4>Band Score: ${score}</h4>
+                    <p>${description}</p>
+                    <h4>Strengths:</h4>
+                    <p>${getStrengths(score, taskType)}</p>
+                    <h4>Areas for Improvement:</h4>
+                    <p>${getImprovements(score, taskType)}</p>
+                </div>
+            `;
+        }
+        
+        // Get strengths based on score
+        function getStrengths(score, taskType) {
+            if (score >= 8) {
+                return "Excellent organization, wide range of vocabulary, and accurate grammar throughout.";
+            } else if (score >= 6) {
+                return "Good response with clear ideas and generally accurate language.";
+            } else if (score >= 4) {
+                return "Some relevant content with basic coherence.";
+            } else {
+                return "Attempted response with limited content.";
+            }
+        }
+        
+        // Get improvement suggestions based on score
+        function getImprovements(score, taskType) {
+            if (score >= 8) {
+                return "Minor improvements in lexical sophistication could achieve a Band 9.";
+            } else if (score >= 6) {
+                return "Work on expanding vocabulary range and improving grammatical accuracy.";
+            } else if (score >= 4) {
+                return "Focus on organizing ideas more clearly and expanding vocabulary.";
+            } else {
+                return "Practice developing ideas more fully and using a wider range of vocabulary.";
+            }
+        }
+        
+        // Close evaluation modal
+        function closeEvaluation() {
+            document.getElementById('evaluation-modal').classList.add('hidden');
+        }
+        
+        // Timer functionality
+        let totalSeconds = 60 * 60; // 60 minutes
+        const timerElement = document.getElementById('writing-timer');
+        
+        function updateTimer() {
+            if (totalSeconds <= 0) {
+                timerElement.textContent = "00:00";
+                alert("Time's up! The test will be submitted automatically.");
+                return;
+            }
+            
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            totalSeconds--;
+        }
+        
+        // Update timer every second
+        setInterval(updateTimer, 1000);
+        updateTimer(); // Initial call
+    </script>
+</body>
+</html>

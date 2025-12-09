@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SertPrep</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Sidebar -->
+        <div class="sidebar" id="main-sidebar">
+            <div class="sidebar-header">
+                <h2>User Menu</h2>
+                <button id="close-sidebar" class="close-btn">×</button>
+            </div>
+            <div class="sidebar-content">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <span id="user-initials">UN</span>
+                    </div>
+                    <div class="user-details">
+                        <h3 id="user-name">User Name</h3>
+                        <p id="user-email">user@example.com</p>
+                    </div>
+                </div>
+                
+                <div class="sidebar-menu">
+                    <button id="theme-toggle" class="menu-item">
+                        <span class="menu-icon">🌙</span>
+                        <span class="menu-text">Dark Mode</span>
+                    </button>
+                    <button id="logout-btn-sidebar" class="menu-item">
+                        <span class="menu-icon">🚪</span>
+                        <span class="menu-text">Logout</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Overlay for mobile -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="container">
+            <header>
+                <button id="open-sidebar" class="menu-toggle">☰</button>
+                <h1>Welcome to SertPrep</h1>
+                <button id="logout-btn">Logout</button>
+            </header>
+            
+            <div class="dashboard-content">
+                <div class="features">
+                    <div class="feature-card" id="start-test-btn">
+                        <h3>Start SAT Practice Test</h3>
+                        <p>60 questions with timer</p>
+                    </div>
+                    
+                    <!-- IELTS Test Link -->
+                    <div class="feature-card" onclick="window.location.href='ielts/ielts.html'">
+                        <h3>Start IELTS Practice Test</h3>
+                        <p>Listening, Reading, Writing, Speaking</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check if user is authenticated
+            await checkUserSession();
+            
+            // Add event listeners for dashboard elements
+            document.getElementById('open-sidebar').addEventListener('click', toggleSidebar);
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+            });
+            document.getElementById('start-test-btn').addEventListener('click', startTest);
+            
+            // Sidebar event listeners
+            document.getElementById('close-sidebar').addEventListener('click', closeSidebar);
+            document.getElementById('sidebar-overlay').addEventListener('click', closeSidebar);
+            document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+            document.getElementById('logout-btn-sidebar').addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+            });
+        });
+        
+        // Override checkUserSession to redirect to login if not authenticated
+        async function checkUserSession() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (!session) {
+                    // Redirect to login page if not authenticated
+                    window.location.href = 'index.html';
+                } else {
+                    // Update user info in sidebar
+                    updateUserInfo(session.user);
+                }
+            } catch (error) {
+                console.error('Error checking session:', error);
+                // Redirect to login page on error
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // Async logout function
+        async function logout() {
+            try {
+                // Sign out from Supabase
+                await supabase.auth.signOut();
+                
+                // Clear any stored session data
+                localStorage.clear();
+                
+                // Redirect to login page
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Error during logout:', error);
+                // Still redirect to login page even if there's an error
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

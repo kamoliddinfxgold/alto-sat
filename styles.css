@@ -1,3 +1,5 @@
+
+
 /* Global Styles */
 * {
     margin: 0;
@@ -11,6 +13,69 @@ body {
     color: #FFD700;
     min-height: 100vh;
     padding: 20px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body.light-mode {
+    background: #ffffff;
+    color: #000000;
+}
+
+body.light-mode .container {
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #e0e0e0;
+}
+
+body.light-mode button {
+    background: #4CAF50;
+    color: white;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+body.light-mode button:hover {
+    background: #45a049;
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5);
+}
+
+body.light-mode input, 
+body.light-mode select,
+body.light-mode textarea {
+    background: #f9f9f9;
+    color: #000000;
+    border: 2px solid #ddd;
+}
+
+body.light-mode input:focus, 
+body.light-mode select:focus,
+body.light-mode textarea:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+    background: #ffffff;
+}
+
+body.light-mode a {
+    color: #4CAF50;
+}
+
+body.light-mode h1,
+body.light-mode h2,
+body.light-mode h3,
+body.light-mode h4,
+body.light-mode h5,
+body.light-mode h6 {
+    color: #000000;
+}
+
+body.light-mode p,
+body.light-mode span,
+body.light-mode li,
+body.light-mode div:not(.feature-card):not(.score-card):not(.option-card):not(.question-item) {
+    color: #000000;
+}
+
+body.light-mode strong {
+    color: #000000;
 }
 
 .container {
@@ -46,7 +111,7 @@ button:active {
     transform: translateY(1px);
 }
 
-input, select {
+input, select, textarea {
     width: 100%;
     padding: 15px;
     margin: 12px 0;
@@ -58,7 +123,7 @@ input, select {
     color: #FFD700;
 }
 
-input:focus, select:focus {
+input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: #FFD700;
     box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.3);
@@ -91,6 +156,205 @@ h2 {
 h3 {
     color: #FFD700;
     font-size: 1.5rem;
+}
+
+/* Auth Section */
+#auth-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 80vh;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 300px;
+    height: 100vh;
+    background: #111;
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+    border-right: 2px solid #333;
+}
+
+.sidebar.active {
+    left: 0;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: #222;
+    border-bottom: 2px solid #333;
+}
+
+.sidebar-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #FFD700;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #FFD700;
+    font-size: 1.8rem;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-content {
+    padding: 20px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #333;
+}
+
+.user-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #FFD700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-weight: bold;
+    color: #000;
+    font-size: 1.5rem;
+}
+
+.user-details h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.3rem;
+}
+
+.user-details p {
+    margin: 0;
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: #222;
+    border: none;
+    border-radius: 8px;
+    color: #FFD700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.menu-item:hover {
+    background: #333;
+    transform: translateX(5px);
+}
+
+.menu-icon {
+    margin-right: 15px;
+    font-size: 1.2rem;
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+
+.sidebar-overlay.active {
+    display: block;
+}
+
+.menu-toggle {
+    background: none;
+    border: none;
+    color: #FFD700;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.menu-toggle:hover {
+    background: rgba(255, 215, 0, 0.1);
+}
+
+body.light-mode .sidebar {
+    background: #ffffff;
+    border-right: 2px solid #e0e0e0;
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .sidebar-header {
+    background: #f5f5f5;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+body.light-mode .sidebar-header h2 {
+    color: #000000;
+}
+
+body.light-mode .close-btn {
+    color: #000000;
+}
+
+body.light-mode .user-avatar {
+    background: #4CAF50;
+    color: white;
+}
+
+body.light-mode .user-details h3 {
+    color: #000000;
+}
+
+body.light-mode .user-details p {
+    color: #666;
+}
+
+body.light-mode .menu-item {
+    background: #f5f5f5;
+    color: #000000;
+    border: 1px solid #e0e0e0;
+}
+
+body.light-mode .menu-item:hover {
+    background: #e0e0e0;
+}
+
+body.light-mode .sidebar-overlay {
+    background: rgba(0, 0, 0, 0.3);
 }
 
 /* Auth Section */
@@ -136,6 +400,20 @@ h3 {
     text-align: center;
     margin-top: 25px;
     color: #aaa;
+}
+
+body.light-mode .auth-container {
+    background: #ffffff;
+    border: 2px solid #e0e0e0;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .auth-form h2 {
+    color: #000000;
+}
+
+body.light-mode .auth-form p {
+    color: #666;
 }
 
 /* Dashboard */
@@ -199,6 +477,35 @@ h3 {
     color: #aaa;
     font-size: 1.1rem;
     line-height: 1.6;
+}
+
+body.light-mode #dashboard header {
+    background: #ffffff;
+    border: 2px solid #e0e0e0;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode #dashboard h1 {
+    color: #000000;
+}
+
+body.light-mode .feature-card {
+    background: #ffffff;
+    border: 2px solid #e0e0e0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .feature-card:hover {
+    border-color: #4CAF50;
+    box-shadow: 0 15px 35px rgba(76, 175, 80, 0.2);
+}
+
+body.light-mode .feature-card h3 {
+    color: #000000;
+}
+
+body.light-mode .feature-card p {
+    color: #666;
 }
 
 /* Test Section */
@@ -319,6 +626,59 @@ h3 {
 
 .calculator-toggle {
     background: #FF8C00 !important;
+}
+
+body.light-mode #test-section header {
+    background: #ffffff;
+    border: 2px solid #e0e0e0;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .timer {
+    color: #d32f2f;
+    background: rgba(211, 47, 47, 0.1);
+}
+
+body.light-mode .test-container {
+    background: #ffffff;
+    border: 2px solid #e0e0e0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .question-progress span {
+    color: #000000;
+}
+
+body.light-mode .progress-bar {
+    background: #e0e0e0;
+}
+
+body.light-mode .progress-fill {
+    background: #4CAF50;
+}
+
+body.light-mode .question-container h3 {
+    color: #000000;
+}
+
+body.light-mode .options-container .option {
+    background: #f9f9f9;
+    border: 2px solid #ddd;
+    color: #000000;
+}
+
+body.light-mode .options-container .option:hover {
+    background: #f0f0f0;
+    border-color: #4CAF50;
+}
+
+body.light-mode .options-container .option.selected {
+    background: rgba(76, 175, 80, 0.1);
+    border-color: #4CAF50;
+}
+
+body.light-mode .options-container .option.selected::before {
+    color: #4CAF50;
 }
 
 /* Draggable Calculator Card */
@@ -448,6 +808,51 @@ h3 {
 .calculator-body .buttons button:nth-child(4n):hover {
     background: #FFC400;
     transform: scale(1.05);
+}
+
+body.light-mode .calculator-card {
+    background: #ffffff;
+    border: 2px solid #e0e0e0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+body.light-mode .calculator-header {
+    background: #f5f5f5;
+    border-bottom: 2px solid #ddd;
+}
+
+body.light-mode .calculator-header span {
+    color: #000000;
+}
+
+body.light-mode .control-btn {
+    background: #e0e0e0;
+    color: #000000;
+}
+
+body.light-mode .calculator-body .display input {
+    background: #f9f9f9;
+    color: #000000;
+    border: 2px solid #ddd;
+}
+
+body.light-mode .calculator-body .buttons button {
+    background: #f0f0f0;
+    color: #000000;
+    border: 1px solid #ddd;
+}
+
+body.light-mode .calculator-body .buttons button:nth-child(4n) {
+    background: #4CAF50;
+    color: white;
+}
+
+body.light-mode .calculator-body .buttons button:hover {
+    background: #e0e0e0;
+}
+
+body.light-mode .calculator-body .buttons button:nth-child(4n):hover {
+    background: #45a049;
 }
 
 /* Calculator inside test */
@@ -589,6 +994,51 @@ h3 {
     color: #FFD700;
 }
 
+body.light-mode #results-section {
+    background: #ffffff;
+    border: 2px solid #e0e0e0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .score-card {
+    background: #f9f9f9;
+    color: #000000;
+    border: 2px solid #4CAF50;
+}
+
+body.light-mode .score-card h2 {
+    color: #000000;
+}
+
+body.light-mode .score {
+    color: #4CAF50;
+    text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+}
+
+body.light-mode .review-section h3 {
+    color: #000000;
+}
+
+body.light-mode .answer-item {
+    background: #f9f9f9;
+    border-left: 5px solid #4CAF50;
+    color: #000000;
+}
+
+body.light-mode .answer-item.correct {
+    border-left-color: #2ECC40;
+    background: rgba(46, 204, 64, 0.1);
+}
+
+body.light-mode .answer-item.incorrect {
+    border-left-color: #FF4136;
+    background: rgba(255, 65, 54, 0.1);
+}
+
+body.light-mode .answer-item strong {
+    color: #000000;
+}
+
 /* Calculator */
 #calculator-section {
     background: #111;
@@ -656,6 +1106,146 @@ h3 {
     font-size: 1.1rem;
 }
 
+/* IELTS Specific Styles */
+.coming-soon {
+    color: #FF4136;
+    font-weight: bold;
+    font-style: italic;
+    margin-top: 10px;
+    font-size: 1.2rem;
+}
+
+.ielts-option {
+    position: relative;
+}
+
+.ielts-option .coming-soon::before {
+    content: "⚠ ";
+}
+
+.top-back-button {
+    margin-bottom: 20px;
+    float: right;
+}
+
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+/* IELTS Reading Test Layout */
+.reading-test-layout {
+    display: flex;
+    gap: 30px;
+    margin: 30px 0;
+}
+
+.reading-passage-column {
+    flex: 1;
+    background: #222;
+    border-radius: 15px;
+    padding: 25px;
+    border: 2px solid #333;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.questions-column {
+    flex: 1;
+    background: #222;
+    border-radius: 15px;
+    padding: 25px;
+    border: 2px solid #333;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.passage-container h2,
+.questions-container h2 {
+    color: #FFD700;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #333;
+}
+
+.passage-content {
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+.passage-content p {
+    margin-bottom: 20px;
+}
+
+.question-item {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #333;
+}
+
+.question-item:last-child {
+    border-bottom: none;
+    margin-bottom: 20px;
+    padding-bottom: 0;
+}
+
+.options-container .option {
+    background: #333;
+    border: 2px solid #444;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.options-container .option:hover {
+    background: #444;
+    border-color: #FFD700;
+    transform: translateX(5px);
+}
+
+.options-container .option input[type="radio"] {
+    margin-right: 15px;
+}
+
+.question-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin: 30px 0;
+    gap: 15px;
+}
+
+.nav-btn {
+    flex: 1;
+    padding: 15px;
+    font-size: 1rem;
+}
+
+.test-timer {
+    text-align: center;
+    padding: 20px;
+    background: rgba(255, 65, 54, 0.1);
+    border-radius: 10px;
+    border: 2px solid #FF4136;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #FF4136;
+}
+
+.test-actions {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.test-actions button {
+    padding: 15px 30px;
+    font-size: 1.1rem;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     body {
@@ -704,6 +1294,29 @@ h3 {
     
     .test-container, #results-section, #calculator-section {
         padding: 25px;
+    }
+    
+    /* IELTS Responsive Layout */
+    .reading-test-layout {
+        flex-direction: column;
+    }
+    
+    .reading-passage-column,
+    .questions-column {
+        max-height: none;
+    }
+    
+    .question-navigation {
+        flex-direction: column;
+    }
+    
+    .test-actions {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .test-actions button {
+        width: 100%;
     }
 }
 

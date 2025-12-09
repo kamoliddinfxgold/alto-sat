@@ -1,4 +1,4 @@
-# SAT Practice Test Application
+# SertPrep - SAT Practice Test Application
 
 A complete SAT practice test application built with HTML, CSS, and JavaScript with Supabase integration for authentication and question storage.
 
